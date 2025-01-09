@@ -1,0 +1,13 @@
+class ItemRequestSearch:
+    stores: list[str]
+    search_page: int
+    results_per_page: int
+    only_clearance_items: bool
+    unique_id: str
+    search_term: str
+    category_codes: list[str]
+    search_price_high: float
+    search_price_low: float
+    longitude: float
+    latitude: float
+    search_distance: float

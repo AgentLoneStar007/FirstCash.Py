@@ -1,0 +1,2 @@
+class HTTPMethod:
+    method: str

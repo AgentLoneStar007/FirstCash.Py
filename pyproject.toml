@@ -1,0 +1,16 @@
+[project]
+name = "firstcash-py"
+description = "A basic Python library to communicate with FirstCash' inventory management API."
+authors = [
+    {name = "AgentLoneStar007", email = "contactagent.3gxdf@simplelogin.com"}
+]
+requires-python = ">3.8"  # TODO: Verify this will work in Python 3.8 and above
+license = {file = "LICENSE"}
+dependencies = [
+    "requests"
+]
+
+[project.urls]
+# TODO: Set these URLs
+Documentation = ""
+"Issues" = ""
