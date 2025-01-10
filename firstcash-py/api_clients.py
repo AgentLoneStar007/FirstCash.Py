@@ -1,6 +1,7 @@
 # Import(s)
 import requests
 from urllib.parse import urljoin, urlencode
+from .types.inventory_manager_types.category import Category
 
 
 # The API client for FirstCash's inventory management system
@@ -45,6 +46,43 @@ class InventoryAPIClient:
 
         return url
 
+    async def fetchCategories(self) -> list[Category]:
+        """
+        Fetches a list of categories.
+
+        :returns: ``list[Category]`` - A list of Categories.
+
+        :raises None: (temporarily)
+        """
+
+        try:
+            # Make the API request
+            response: requests.Response = requests.get(self._buildURL(endpoint="Categories"))
+            response.raise_for_status()
+        except requests.exceptions.RequestException as error:
+            # TODO: Add API errors
+            raise
+
+        # Grab the data out of the response
+        data: dict = response.json()
+
+        # Create a list of data that will be returned
+        return_list: list[Category] = []
+
+        # Go through each category, create a Category object, set the object's
+        # data, and add it to the return list
+        for item in data:
+            category: Category = Category()
+            category.category_code = item["categoryCode"]
+            category.category_name = item["categoryName"]
+            category.parent_id = item["parentID"]
+            category.has_children = item["hasChildren"]
+
+            # Append the category to the return list
+            return_list.append(category)
+
+        return return_list
+
 
 # The API client for FirstCash's store interface
 class StoreAPIClient:
@@ -59,7 +97,7 @@ class StoreAPIClient:
 
     def _buildURL(self, endpoint: str, params: dict = None) -> str:
         """
-        A function
+        A function to build a URL that can be used to make an API request.
 
         :param endpoint: The endpoint to use. This will be something like
          "Categories," or "Items."
