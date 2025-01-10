@@ -19,4 +19,4 @@ __version__: str = "0.1-alpha"
 # Imports from library files, to make everything accessible under the main import
 # of "firstcash-py"
 
-from .api_client import APIClient
+from .api_clients import StoreAPIClient, InventoryAPIClient
