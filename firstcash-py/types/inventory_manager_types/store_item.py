@@ -10,4 +10,4 @@ class StoreItem:
     is_available: bool
     is_clearance_item: bool
     store_number: str
-    short_name: str
+    store_short_name: str
