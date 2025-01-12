@@ -11,6 +11,7 @@ from .types.store_manager_types.store_address import StoreAddress
 from .types.store_manager_types.store_details import StoreDetails
 from .types.store_manager_types.store_hours import StoreHours
 from .types.store_manager_types.store_license import StoreLicense
+from .errors import *
 
 
 # The API client for FirstCash's inventory management system
@@ -104,17 +105,17 @@ class InventoryAPIClient:
 
         return return_list
 
-    async def fetchItems(self, category_code: int,
-                         search_latitude: float,
-                         search_longitude: float,
-                         search_radius: float,
-                         page_index: int = 0,
-                         page_size: int = 10,
-                         unique_id: str = None,
-                         search_term: str = None
-                         ) -> StoreItemResponse:
+    async def searchItemsByLocation(self, category_code: int,
+                                    search_latitude: float,
+                                    search_longitude: float,
+                                    search_radius: float,
+                                    page_index: int = 0,
+                                    page_size: int = 10,
+                                    unique_id: str = None,
+                                    search_term: str = None
+                                    ) -> StoreItemResponse:
         """
-        A function to fetch a list of items.
+        A function to search for an item by location.
 
         :param category_code: The category code to search by.
          Default is zero, which is all categories.
@@ -130,7 +131,7 @@ class InventoryAPIClient:
 
         :returns: ``StoreItemResponse``
 
-        :raises None: (temporarily)
+        :raises APIServerError: If the API returns a non-200 HTTP response code.
         """
 
         try:
@@ -147,9 +148,10 @@ class InventoryAPIClient:
                     "t": search_term if search_term else ""
                 })
             response.raise_for_status()
+
+        # Handle a non-200 response code
         except requests.exceptions.RequestException as error:
-            # TODO: Add API errors
-            raise
+            raise APIServerError(f"Failed to search for items by location with the following error: {error}")
 
         # Grab the data out of the response
         data: dict = response.json()
@@ -223,7 +225,7 @@ class StoreAPIClient:
         :returns: ``list[StoreDisplayInfo]`` - A list of store information.
 
         :raises ValueError: If the provided time string cannot be converted to ISO format.
-        :raises None: (temporarily)
+        :raises APIServerError: If the API returns a non-200 HTTP response code.
         """
 
         try:
@@ -243,9 +245,10 @@ class StoreAPIClient:
                     "d": current_time
                 })
             response.raise_for_status()
+
+        # Handle a non-200 response code
         except requests.exceptions.RequestException as error:
-            # TODO: Add API errors
-            raise
+            raise APIServerError(f"Failed to find a store by location with the following error: {error}")
 
         # Grab the data out of the response
         data: dict = response.json()
@@ -311,7 +314,8 @@ class StoreAPIClient:
 
         :raises ValueError: If the store ID is negative or greater than a 16-bit
          integer(32,767).
-        :raises None: (temporarily)
+        :raises APIServerError: If the API returns a non-200 HTTP response code.
+        :raises ContentNotFound: If the API couldn't find any matching stores.
         """
 
         # Handle if the store ID is larger than a 16-bit integer
@@ -330,14 +334,13 @@ class StoreAPIClient:
                 })
             response.raise_for_status()
 
+        # Handle a non-200 response code
         except requests.exceptions.RequestException as error:
-            # TODO: Add API errors
-            raise
+            raise APIServerError(f"Failed to fetch a store by ID from the API with the following error: {error}")
 
         # Handle if no store matched the provided ID
         if not response.content:
-            # TODO: Add an error here
-            pass
+            raise ContentNotFound("Could not find a store with a matching ID.")
 
         # Grab the data out of the response
         data: dict = response.json()
@@ -397,4 +400,3 @@ class StoreAPIClient:
         store_details.short_name = data["shortName"]
 
         return store_details
-
