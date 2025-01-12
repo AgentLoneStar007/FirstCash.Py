@@ -1,5 +1,5 @@
 [project]
-name = "firstcash-py"
+name = "firstcash.py"
 description = "A basic Python library to communicate with FirstCash' inventory management API."
 authors = [
     {name = "AgentLoneStar007", email = "contactagent.3gxdf@simplelogin.com"}

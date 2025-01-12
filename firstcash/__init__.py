@@ -10,13 +10,13 @@ inventory/store manager API.
 """
 
 # TODO: Determine if these are needed
-__title__: str = "firstcashpy"
+__title__: str = "firstcash"
 __author__: str = "AgentLoneStar007"
 __license__: str = "MIT"
-__copyright__: str = "Copyright 2025 AgentLoneStar007"
+__copyright__: str = "Copyright © 2025-present AgentLoneStar007"
 __version__: str = "0.1-alpha"
 
 # Imports from library files, to make everything accessible under the main import
-# of "firstcash-py"
+# of "firstcash"
 
 from .api_clients import StoreAPIClient, InventoryAPIClient
