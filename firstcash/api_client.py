@@ -2,23 +2,23 @@
 import requests
 from datetime import datetime
 from .utils import buildURL
-from .types.inventory_manager_types.category import Category
-from .types.inventory_manager_types.store_item import StoreItem
-from .types.inventory_manager_types.store_item_response import StoreItemResponse
-from .types.store_manager_types.store_display_info import StoreDisplayInfo
-from .types.store_manager_types.todays_store_hours import TodaysStoreHours
-from .types.store_manager_types.store_address import StoreAddress
-from .types.store_manager_types.store_details import StoreDetails
-from .types.store_manager_types.store_hours import StoreHours
-from .types.store_manager_types.store_license import StoreLicense
+from .types.category import Category
+from .types.store_item import StoreItem
+from .types.store_item_response import StoreItemResponse
+from .types.store_display_info import StoreDisplayInfo
+from .types.todays_store_hours import TodaysStoreHours
+from .types.store_address import StoreAddress
+from .types.store_details import StoreDetails
+from .types.store_hours import StoreHours
+from .types.store_license import StoreLicense
 from .errors import *
 
 
-# The API client for FirstCash's inventory management system
-class InventoryAPIClient:
+# The main class for the entire library
+class APIClient:
     def __init__(self, api_key: str) -> None:
         # Define the base URL for the inventory management API
-        self._api_base_url: str = "https://search.cashamerica.com/api/"
+        self._api_base_url: str = "https://mobileapps.cashamerica.com/api/v2/"
 
         # Define class-wide variable(s)
         self._api_key: str = api_key
@@ -190,18 +190,6 @@ class InventoryAPIClient:
             store_item_response.results = []
 
         return store_item_response
-
-
-# The API client for FirstCash's store interface
-class StoreAPIClient:
-    def __init__(self, api_key: str) -> None:
-        # Define the base URL for the store management API
-        self._api_base_url: str = "http://find.cashamerica.us/api/"
-
-        # Define class-wide variable(s)
-        self._api_key: str = api_key
-
-        return
 
     async def fetchStores(self,
                           search_latitude: float,
