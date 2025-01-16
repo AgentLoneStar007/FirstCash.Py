@@ -1,9 +1,16 @@
 class FirstCashException(Exception):
-    """Base exception for the entire library. All other exceptions
-    are based on this one.
-    """
+    """Base exception for the entire library. All other exceptions are based on this one."""
 
     pass
+
+
+class APIGeneralError(FirstCashException):
+    """A general exception raised for any non-200 HTTP response codes from the API that don't have their own error."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+        return
 
 
 class APIServerError(FirstCashException):
@@ -12,6 +19,18 @@ class APIServerError(FirstCashException):
     def __init__(self, message: str = None) -> None:
         if not message:
             message = "An error occurred in the FirstCash API."
+
+        super().__init__(message)
+
+        return
+
+
+class APIUnauthorizedError(FirstCashException):
+    """Error raised when the server responds with HTTP error code 403(forbidden)."""
+
+    def __init__(self, message: str = None) -> None:
+        if not message:
+            message = "Not authorized to access this endpoint or resource."
 
         super().__init__(message)
 

@@ -2,19 +2,22 @@
 FirstCash.Py
 ------------
 A basic API wrapper for the FirstCash
-inventory/store manager API.
+mobile app API, which exposes the combined
+functionality of the store and inventory
+management APIs, allowing the user to fetch
+store details as well as search for items across
+the massive FirstCash inventory network.
 
 :copyright: (c) 2025 AgentLoneStar007
 :license: MIT
 
 """
 
-# TODO: Determine if these are needed
 __title__: str = "firstcash"
 __author__: str = "AgentLoneStar007"
 __license__: str = "MIT"
 __copyright__: str = "Copyright © 2025-present AgentLoneStar007"
-__version__: str = "0.1-alpha"
+__version__: str = "1.0"
 
 # Imports from library files, to make everything accessible under the main import
 # of "firstcash"

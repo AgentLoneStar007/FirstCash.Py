@@ -2,8 +2,8 @@
 import requests
 from urllib3.exceptions import MaxRetryError
 from json import JSONDecodeError
-from .utils import buildURL
-from .utils import ValueCheckers as value_checkers
+from ._utils import buildURL
+from ._utils import ValueCheckers as value_checkers
 from .types.category import Category
 from .types.store_item import StoreItem
 from .types.store_item_response import StoreItemResponse
@@ -27,8 +27,6 @@ class APIClient:
 
         return
 
-    # TODO: Find a way to censor the API key in exceptions
-
     async def fetchCategories(self) -> list[Category]:
         """
         Fetches a list of categories.
@@ -50,9 +48,23 @@ class APIClient:
         except MaxRetryError:
             raise RateLimited
 
-        except requests.exceptions.RequestException as error:
-            # TODO: Add API errors
-            raise
+        # Handle a non-200 response code
+        except requests.exceptions.HTTPError as error:
+            # Handle a forbidden error
+            if error.response.status_code == 403:
+                raise APIUnauthorizedError
+
+            # Handle an internal server error
+            if error.response.status_code == 500:
+                raise APIServerError("Encountered an internal server error while querying categories.")
+
+            # Handle any other errors
+            raise APIGeneralError(
+                f"Failed to make a query to the API while fetching categories with the following error: {
+                    str(error).replace(
+                        # Replace the API key in the error log
+                        self._api_key, "<API key>"
+                    )}")
 
         # Grab the data out of the response
         data: dict = response.json()
@@ -91,12 +103,27 @@ class APIClient:
                 buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Categories/top"))
             response.raise_for_status()
 
+        # Handle getting rate-limited
         except MaxRetryError:
             raise RateLimited
 
-        except requests.exceptions.RequestException as error:
-            # TODO: Add API errors
-            raise
+        # Handle a non-200 response code
+        except requests.exceptions.HTTPError as error:
+            # Handle a forbidden error
+            if error.response.status_code == 403:
+                raise APIUnauthorizedError
+
+            # Handle an internal server error
+            if error.response.status_code == 500:
+                raise APIServerError("Encountered an internal server error while querying top-level categories.")
+
+            # Handle any other errors
+            raise APIGeneralError(
+                f"Failed to make a query to the API while fetching top-level categories with the following error: {
+                    str(error).replace(
+                        # Replace the API key in the error log
+                        self._api_key, "<API key>"
+                    )}")
 
         # Grab the data out of the response
         data: dict = response.json()
@@ -189,12 +216,27 @@ class APIClient:
                 })
             response.raise_for_status()
 
+        # Handle getting rate-limited
         except MaxRetryError:
             raise RateLimited
 
         # Handle a non-200 response code
-        except requests.exceptions.RequestException as error:
-            raise APIServerError(f"Failed to search for items by location with the following error: {error}")
+        except requests.exceptions.HTTPError as error:
+            # Handle a forbidden error
+            if error.response.status_code == 403:
+                raise APIUnauthorizedError
+
+            # Handle an internal server error
+            if error.response.status_code == 500:
+                raise APIServerError("Encountered an internal server error while searching for items.")
+
+            # Handle any other errors
+            raise APIGeneralError(
+                f"Failed to make a query to the API while searching for items with the following error: {
+                    str(error).replace(
+                        # Replace the API key in the error log
+                        self._api_key, "<API key>"
+                    )}")
 
         try:
             # Grab the data out of the response
@@ -360,6 +402,7 @@ class APIClient:
                     api_key=self._api_key,
                     endpoint="Items"
                 ), json={
+                    ## DO NOT CHANGE THE UNIQUE ID!!!
                     "UniqueId": "firstcash-py",  # string, required, can be anything but can't be blank
                     "SearchTerm": search_term,  # string, required
                     "Stores": stores,  # list of string, can be empty
@@ -376,12 +419,27 @@ class APIClient:
 
             response.raise_for_status()
 
+        # Handle getting rate-limited
         except MaxRetryError:
             raise RateLimited
 
         # Handle a non-200 response code
-        except requests.exceptions.RequestException as error:
-            raise APIServerError(f"Failed to search for items by location with the following error: {error}")
+        except requests.exceptions.HTTPError as error:
+            # Handle a forbidden error
+            if error.response.status_code == 403:
+                raise APIUnauthorizedError
+
+            # Handle an internal server error
+            if error.response.status_code == 500:
+                raise APIServerError("Encountered an internal server error while searching for items.")
+
+            # Handle any other errors
+            raise APIGeneralError(
+                f"Failed to make a query to the API while searching for items with the following error: {
+                    str(error).replace(
+                        # Replace the API key in the error log
+                        self._api_key, "<API key>"
+                    )}")
 
         try:
             # Grab the data out of the response
@@ -482,8 +540,22 @@ class APIClient:
             raise RateLimited
 
         # Handle a non-200 response code
-        except requests.exceptions.RequestException as error:
-            raise APIServerError(f"Failed to find a store by location with the following error: {error}")
+        except requests.exceptions.HTTPError as error:
+            # Handle a forbidden error
+            if error.response.status_code == 403:
+                raise APIUnauthorizedError
+
+            # Handle an internal server error
+            if error.response.status_code == 500:
+                raise APIServerError("Encountered an internal server error while searching for stores.")
+
+            # Handle any other errors
+            raise APIGeneralError(
+                f"Failed to make a query to the API while searching for stores with the following error: {
+                    str(error).replace(
+                        # Replace the API key in the error log
+                        self._api_key, "<API key>"
+                    )}")
 
         try:
             # Grab the data out of the response
@@ -576,8 +648,22 @@ class APIClient:
             raise RateLimited
 
         # Handle a non-200 response code
-        except requests.exceptions.RequestException as error:
-            raise APIServerError(f"Failed to fetch a store by ID from the API with the following error: {error}")
+        except requests.exceptions.HTTPError as error:
+            # Handle a forbidden error
+            if error.response.status_code == 403:
+                raise APIUnauthorizedError
+
+            # Handle an internal server error
+            if error.response.status_code == 500:
+                raise APIServerError("Encountered an internal server error while querying a store.")
+
+            # Handle any other errors
+            raise APIGeneralError(
+                f"Failed to make a query to the API while fetching a store with the following error: {
+                    str(error).replace(
+                        # Replace the API key in the error log
+                        self._api_key, "<API key>"
+                    )}")
 
         try:
             # Grab the data out of the response

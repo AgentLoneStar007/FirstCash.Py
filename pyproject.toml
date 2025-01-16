@@ -1,6 +1,6 @@
 [project]
 name = "firstcash.py"
-description = "A basic Python library to communicate with FirstCash' inventory management API."
+description = "A basic Python library to communicate with FirstCash' mobile app API."
 authors = [
     {name = "AgentLoneStar007", email = "contactagent.3gxdf@simplelogin.com"}
 ]
@@ -11,6 +11,5 @@ dependencies = [
 ]
 
 [project.urls]
-# TODO: Set these URLs
-Documentation = ""
-"Issues" = ""
+Documentation = "https://github.com/AgentLoneStar007/FirstCash.Py/tree/main/docs"
+"Issues" = "https://github.com/AgentLoneStar007/FirstCash.Py/issues"
