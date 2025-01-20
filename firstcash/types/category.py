@@ -12,3 +12,6 @@ class Category:
 
     has_children: bool
     """A boolean value showing whether the category has children."""
+
+    def __str__(self) -> str:
+        return f"{self.category_name} ({self.category_code})"

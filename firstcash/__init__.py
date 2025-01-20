@@ -10,7 +10,6 @@ the massive FirstCash inventory network.
 
 :copyright: (c) 2025 AgentLoneStar007
 :license: MIT
-
 """
 
 __title__: str = "firstcash"
@@ -22,4 +21,13 @@ __version__: str = "1.0"
 # Imports from library files, to make everything accessible under the main import
 # of "firstcash"
 
-#from .api_client import APIClient
+from .api_client import APIClient
+from .types.category import Category
+from .types.store_address import StoreAddress
+from .types.store_details import StoreDetails
+from .types.store_display_info import StoreDisplayInfo
+from .types.store_hours import StoreHours
+from .types.store_item import StoreItem
+from .types.store_item_response import StoreItemResponse
+from .types.store_license import StoreLicense
+from .types.todays_store_hours import TodaysStoreHours

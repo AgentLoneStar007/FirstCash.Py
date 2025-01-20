@@ -1,15 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "firstcash.py"
 description = "A basic Python library to communicate with FirstCash' mobile app API."
 authors = [
     {name = "AgentLoneStar007", email = "contactagent.3gxdf@simplelogin.com"}
 ]
-requires-python = ">3.9"  # TODO: Verify this will work in Python 3.9 and above
-license = {file = "LICENSE"}
+keywords = ["api", "web", "web api", "http", "https", "http api", "https api", "rest", "restful", "restful api"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Database",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed"
+]
+license = { file = "LICENSE" }
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">=3.9"  # TODO: Verify this will work in Python 3.9 and above
 dependencies = [
     "requests"
 ]
 
 [project.urls]
+Homepage = "https://github.com/AgentLoneStar007/FirstCash.Py"
 Documentation = "https://github.com/AgentLoneStar007/FirstCash.Py/tree/main/docs"
-"Issues" = "https://github.com/AgentLoneStar007/FirstCash.Py/issues"
+Issues = "https://github.com/AgentLoneStar007/FirstCash.Py/issues"

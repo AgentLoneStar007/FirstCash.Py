@@ -3,11 +3,11 @@ from .store_address import StoreAddress
 
 
 class StoreDisplayInfo:
-    phone: str
-    """The store's phone number."""
+    phone: str | None
+    """The store's phone number. In rare cases, this will be NoneType."""
 
-    hours: TodaysStoreHours
-    """The time that the store is open today."""
+    hours: TodaysStoreHours | None
+    """The time that the store is open today. In rare cases, this will be NoneType."""
 
     brand: str
     """The store's brand. This will be something like \"Cash America,\" or \"First Cash.\""""
@@ -29,3 +29,8 @@ class StoreDisplayInfo:
 
     short_name: str
     """The store's name. This will usually be something like \"fcp(store number).\""""
+
+    def __str__(self) -> str:
+        # When this object is printed as a string, it will be in the format of
+        # (store brand) (store number), such as "National Pawn 4412"
+        return f"{self.brand} {self.store_number}"

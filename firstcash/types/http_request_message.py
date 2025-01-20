@@ -1,3 +1,5 @@
+# (currently unused)
+
 from .version import Version
 from .http_content import HTTPContent
 from .http_method import HTTPMethod

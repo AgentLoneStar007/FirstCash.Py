@@ -13,3 +13,6 @@ class TodaysStoreHours:
 
     store_status: str
     """A string that will be something along the lines of \"Open\" or \"Closed.\""""
+
+    def __str__(self) -> str:
+        return f"{self.open_time} to {self.close_time}"

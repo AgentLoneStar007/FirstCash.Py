@@ -34,3 +34,6 @@ class StoreItem:
 
     store_short_name: str
     """The short name of the store where the item is located."""
+
+    def __str__(self) -> str:
+        return f"{self.item_name} {" ".title().join(self.details)} - ${self.price:.2f}"

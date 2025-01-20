@@ -7,7 +7,6 @@ class ItemRequestByICN:
     """A list of items with a matching ICN."""
 
     unique_id: str
-    # TODO: Figure out what the unique ID is
 
     search_term: str
     """A string to search by. A type of item, such as \"laptop,\" would work best."""

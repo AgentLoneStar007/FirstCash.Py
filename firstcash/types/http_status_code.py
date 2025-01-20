@@ -1,3 +1,5 @@
+# (currently unused)
+
 class HTTPStatusCode:
     ## I had to append "code_" to the names of these status codes because some
     ## have the same name as Python keywords

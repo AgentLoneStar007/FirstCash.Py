@@ -14,7 +14,7 @@ class APIGeneralError(FirstCashException):
 
 
 class APIServerError(FirstCashException):
-    """Error raised when there's an error on the APIs side."""
+    """Error raised when there's an issue on the server's side."""
 
     def __init__(self, message: str = None) -> None:
         if not message:
@@ -37,15 +37,14 @@ class APIUnauthorizedError(FirstCashException):
         return
 
 
-class ContentNotFound(FirstCashException):
-    """Error raised when the requested data could not be found,
-    or no matches were found for the query."""
+class APIContentNotFound(FirstCashException):
+    """Error raised when the requested data could not be found, or no matches were found for the query."""
 
     pass
 
 
-class RateLimited(FirstCashException):
-    """Error raised when the API rate limits connections."""
+class APIRateLimited(FirstCashException):
+    """Error raised when the API rate limits the request."""
 
     pass
 

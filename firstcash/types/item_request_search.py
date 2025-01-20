@@ -16,7 +16,6 @@ class ItemRequestSearch:
     """Whether only clearance items should be shown or not."""
 
     unique_id: str
-    # TODO: Figure out what unique IDs are
 
     search_term: str
     """A string to search by. A type of item, such as \"laptop,\" would work best."""

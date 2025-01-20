@@ -13,3 +13,7 @@ class StoreAddress:
 
     zip_code: str
     """The zip code where the store is located."""
+
+    def __str__(self) -> str:
+        return f"{
+            self.address1}{" " + self.address2 if self.address2 else ""} {self.city}, {self.state} {self.zip_code}"

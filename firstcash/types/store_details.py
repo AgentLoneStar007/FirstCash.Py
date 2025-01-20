@@ -24,3 +24,6 @@ class StoreDetails:
 
     short_name: str
     """The store's name. This will usually be something like \"fcp(store number).\""""
+
+    def __str__(self) -> str:
+        return self.short_name.upper()

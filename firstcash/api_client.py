@@ -1,6 +1,5 @@
 # Import(s)
 import requests
-from urllib3.exceptions import MaxRetryError
 from json import JSONDecodeError
 from ._utils import buildURL
 from ._utils import ValueCheckers as value_checkers
@@ -33,8 +32,8 @@ class APIClient:
 
         :returns: ``list[Category]`` - A list of Categories.
 
-        :raises RateLimited: If your request is rate-limited by the API.
-        :raises None: (temporarily)
+        :raises APIRateLimited: If your request is rate-limited by the API.
+        :raises APIUnauthorizedError: If the API key is invalid.
         """
 
         try:
@@ -44,9 +43,22 @@ class APIClient:
             )
             response.raise_for_status()
 
-        # Max retry error is raised when the API rate limits you
-        except MaxRetryError:
-            raise RateLimited
+        # Handle getting rate-limited
+        except requests.exceptions.ConnectionError as error:
+            ## Hacky fix, but it works, and I don't know of a better solution
+            if "max retries exceeded with url" in str(error).lower():
+                ## By raising it from None, it prevents a massive stack trace that
+                ## from being returned that provides no extra information
+                raise APIRateLimited from None
+
+            else:
+                # Handle any other errors
+                raise APIGeneralError(
+                    f"Failed to make a query to the API while fetching categories with the following error: {
+                        str(error).replace(
+                            # Replace the API key in the error log
+                            self._api_key, "<API key>"
+                        )}")
 
         # Handle a non-200 response code
         except requests.exceptions.HTTPError as error:
@@ -93,8 +105,8 @@ class APIClient:
 
         :returns: ``list[Category]`` - A list of categories.
 
-        :raises RateLimited: If your request is rate-limited by the API.
-        :raises None: (temporarily)
+        :raises APIRateLimited: If your request is rate-limited by the API.
+        :raises APIUnauthorizedError: If the API key is invalid.
         """
 
         try:
@@ -104,8 +116,18 @@ class APIClient:
             response.raise_for_status()
 
         # Handle getting rate-limited
-        except MaxRetryError:
-            raise RateLimited
+        except requests.exceptions.ConnectionError as error:
+            if "max retries exceeded with url" in str(error).lower():
+                raise APIRateLimited from None
+
+            else:
+                # Handle any other errors
+                raise APIGeneralError(
+                    f"Failed to make a query to the API while fetching top-level categories with the following error: {
+                        str(error).replace(
+                            # Replace the API key in the error log
+                            self._api_key, "<API key>"
+                        )}")
 
         # Handle a non-200 response code
         except requests.exceptions.HTTPError as error:
@@ -156,7 +178,7 @@ class APIClient:
                                        search_term: str = None
                                        ) -> StoreItemResponse:
         """
-        A function to search for an item by location.
+        A function to search for an item by location alone.
 
         :param category_code: The category code to search by.
          Default is zero, which is all categories. Cannot
@@ -188,11 +210,15 @@ class APIClient:
          or greater than 5,000.
         :raises PageIndexValueError: If the page index is negative.
         :raises PageSizeValueError: If the page size is zero or less.
-        :raises RateLimited: If your request is rate-limited by the API.
+        :raises APIRateLimited: If your request is rate-limited by the API.
+        :raises APIUnauthorizedError: If the API key is invalid.
         :raises APIServerError: If the API returns a 500 HTTP response code,
          indicating an internal server error.
-        :raises ContentNotFound: If the API couldn't find any items matching the query.
+        :raises APIContentNotFound: If the API couldn't find any items matching the query.
         """
+
+        # Check the category code
+        value_checkers.checkCategoryCode(category_code)
 
         # Check the provided coordinates
         value_checkers.checkLatitude(search_latitude)
@@ -212,13 +238,24 @@ class APIClient:
                     "lat": search_latitude,
                     "lng": search_longitude,
                     "r": search_radius,
+                    "u": "firstcash-py",
                     "t": search_term if search_term else ""
                 })
             response.raise_for_status()
 
         # Handle getting rate-limited
-        except MaxRetryError:
-            raise RateLimited
+        except requests.exceptions.ConnectionError as error:
+            if "max retries exceeded with url" in str(error).lower():
+                raise APIRateLimited from None
+
+            else:
+                # Handle any other errors
+                raise APIGeneralError(
+                    f"Failed to make a query to the API while searching for items with the following error: {
+                        str(error).replace(
+                            # Replace the API key in the error log
+                            self._api_key, "<API key>"
+                        )}")
 
         # Handle a non-200 response code
         except requests.exceptions.HTTPError as error:
@@ -244,7 +281,7 @@ class APIClient:
 
         # Handle if there was an empty response(no matches)
         except JSONDecodeError:
-            raise ContentNotFound("No items matched the query.")
+            raise APIContentNotFound("No items matched the query.")
 
         # Create the store item response object
         store_item_response: StoreItemResponse = StoreItemResponse()
@@ -346,10 +383,9 @@ class APIClient:
          or negative.
         :raises PageIndexValueError: If the page index is negative.
         :raises PageSizeValueError: If the page size is zero or less.
-        :raises RateLimited: If your request is rate-limited by the API.
-        :raises APIServerError: If the API returns a 500 HTTP response code,
-         indicating an internal server error.
-        :raises ContentNotFound: If the API couldn't find any items matching the query.
+        :raises APIAPIRateLimited: If your request is rate-limited by the API.
+        :raises APIUnauthorizedError: If the API key is invalid.
+        :raises APIContentNotFound: If the API couldn't find any items matching the query.
         """
 
         # Check if the search term is blank
@@ -359,6 +395,9 @@ class APIClient:
         # Check the provided coordinates
         value_checkers.checkLatitude(search_latitude)  # if you can read this, go take geography again ;)
         value_checkers.checkLongitude(search_longitude)
+
+        # Check to see if the search radius is within bounds
+        value_checkers.checkSearchRadius(search_radius)
 
         # Check the page index and size
         value_checkers.checkPageIndex(page_index)
@@ -392,9 +431,6 @@ class APIClient:
 
                 value_checkers.checkCategoryCode(int(category_code))
 
-        # Check to see if the search radius is within bounds
-        value_checkers.checkSearchRadius(search_radius)
-
         try:
             response: requests.Response = requests.put(
                 url=buildURL(
@@ -420,8 +456,18 @@ class APIClient:
             response.raise_for_status()
 
         # Handle getting rate-limited
-        except MaxRetryError:
-            raise RateLimited
+        except requests.exceptions.ConnectionError as error:
+            if "max retries exceeded with url" in str(error).lower():
+                raise APIRateLimited from None
+
+            else:
+                # Handle any other errors
+                raise APIGeneralError(
+                    f"Failed to make a query to the API while searching for items with the following error: {
+                        str(error).replace(
+                            # Replace the API key in the error log
+                            self._api_key, "<API key>"
+                        )}")
 
         # Handle a non-200 response code
         except requests.exceptions.HTTPError as error:
@@ -449,7 +495,7 @@ class APIClient:
         except JSONDecodeError:
             # TODO: Find a better way to clarify whether there were no matches or the page index
             #  was out of range of the total pages.
-            raise ContentNotFound("No items matched the query.")
+            raise APIContentNotFound("No items matched the query.")
 
         # Create the store item response object
         store_item_response: StoreItemResponse = StoreItemResponse()
@@ -511,10 +557,9 @@ class APIClient:
          than 180.
         :raises PageIndexValueError: If the page index is negative.
         :raises PageSizeValueError: If the page size is zero or less.
-        :raises RateLimited: If your request is rate-limited by the API.
-        :raises APIServerError: If the API returns a 500 HTTP response code,
-         indicating an internal server error.
-        :raises ContentNotFound: If the API couldn't find any stores matching the query.
+        :raises APIRateLimited: If your request is rate-limited by the API.
+        :raises APIUnauthorizedError: If the API key is invalid.
+        :raises APIContentNotFound: If the API couldn't find any stores matching the query.
         """
 
         # Check the provided coordinates
@@ -536,8 +581,19 @@ class APIClient:
                 })
             response.raise_for_status()
 
-        except MaxRetryError:
-            raise RateLimited
+        # Handle getting rate-limited
+        except requests.exceptions.ConnectionError as error:
+            if "max retries exceeded with url" in str(error).lower():
+                raise APIRateLimited from None
+
+            else:
+                # Handle any other errors
+                raise APIGeneralError(
+                    f"Failed to make a query to the API while searching for stores with the following error: {
+                        str(error).replace(
+                            # Replace the API key in the error log
+                            self._api_key, "<API key>"
+                        )}")
 
         # Handle a non-200 response code
         except requests.exceptions.HTTPError as error:
@@ -565,7 +621,7 @@ class APIClient:
         except JSONDecodeError:
             # TODO: Find a better way to clarify whether there were no matches or the page index
             #  was out of range of the total pages.
-            raise ContentNotFound("No stores matched the query.")
+            raise APIContentNotFound("No stores matched the query.")
 
         # Handle if there were no matching items
         if len(data) >= 1:
@@ -577,15 +633,20 @@ class APIClient:
                 # Create the item's object
                 store_info: StoreDisplayInfo = StoreDisplayInfo()
 
-                # Create a store hours object for this store
-                today_store_hours: TodaysStoreHours = TodaysStoreHours()
+                # Create an empty variable for the store's hours
+                ## This is because in rare cases a store might not have hours listed
+                today_store_hours: TodaysStoreHours | None = None
 
-                # Set it's attributes
-                today_store_hours.open_time = item["hours"]["openTime"]
-                today_store_hours.close_time = item["hours"]["closeTime"]
-                today_store_hours.is_open = item["hours"]["isOpen"]
-                today_store_hours.display_text = item["hours"]["displayText"]
-                today_store_hours.store_status = item["hours"]["storeStatus"]
+                if "hours" in item:
+                    # Assign a store hours object to the variable
+                    today_store_hours = TodaysStoreHours()
+
+                    # Set it's attributes
+                    today_store_hours.open_time = item["hours"]["openTime"]
+                    today_store_hours.close_time = item["hours"]["closeTime"]
+                    today_store_hours.is_open = item["hours"]["isOpen"]
+                    today_store_hours.display_text = item["hours"]["displayText"]
+                    today_store_hours.store_status = item["hours"]["storeStatus"]
 
                 # Create a store address object for this store
                 store_address: StoreAddress = StoreAddress()
@@ -598,7 +659,8 @@ class APIClient:
                 store_address.zip_code = item["address"]["zipCode"]
 
                 # Set the store's attributes
-                store_info.phone = item["phone"]
+                ## Sometimes a store might not have a phone number
+                store_info.phone = None if "phone" not in item else item["phone"]
                 store_info.hours = today_store_hours
                 store_info.brand = item["brand"]
                 store_info.address = store_address
@@ -627,10 +689,9 @@ class APIClient:
          the info such as the address, phone number, etc.
 
         :raises StoreIDValueError: If the store ID is negative or greater than 32,767.
-        :raises APIServerError: If the API returns a 500 HTTP response code,
-         indicating an internal server error.
-        :raises RateLimited: If your request is rate-limited by the API.
-        :raises ContentNotFound: If the API couldn't find a store with a matching ID.
+        :raises APIRateLimited: If the request is rate-limited by the API.
+        :raises APIUnauthorizedError: If the API key is invalid.
+        :raises APIContentNotFound: If the API couldn't find a store with a matching ID.
         """
 
         # Check the provided store ID
@@ -644,8 +705,19 @@ class APIClient:
                 })
             response.raise_for_status()
 
-        except MaxRetryError:
-            raise RateLimited
+        # Handle getting rate-limited
+        except requests.exceptions.ConnectionError as error:
+            if "max retries exceeded with url" in str(error).lower():
+                raise APIRateLimited from None
+
+            else:
+                # Handle any other errors
+                raise APIGeneralError(
+                    f"Failed to make a query to the API while fetching a store with the following error: {
+                        str(error).replace(
+                            # Replace the API key in the error log
+                            self._api_key, "<API key>"
+                        )}")
 
         # Handle a non-200 response code
         except requests.exceptions.HTTPError as error:
@@ -671,7 +743,7 @@ class APIClient:
 
         # Handle if there was an empty response(no match)
         except JSONDecodeError:
-            raise ContentNotFound("No store matched the provided ID.")
+            raise APIContentNotFound("No store matched the provided ID.")
 
         # Create a store address object
         store_address: StoreAddress = StoreAddress()

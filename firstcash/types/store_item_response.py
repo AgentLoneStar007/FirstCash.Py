@@ -12,3 +12,7 @@ class StoreItemResponse:
 
     number_items_total: int
     """The total amount of items that match the query."""
+
+    def __str__(self) -> str:
+        # TODO: Possibly revisit this or remove it
+        return f"{self.number_items_total} items"

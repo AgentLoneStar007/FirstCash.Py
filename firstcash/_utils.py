@@ -97,8 +97,8 @@ class ValueCheckers:
     def checkCategoryCode(category_code: int) -> None:
         """Checks a category code to see if it's within bounds."""
 
-        if not (category_code >= 0):
-            raise CategoryCodeValueError("Category codes cannot be negative.")
+        if not (0 <= category_code <= 9999):
+            raise CategoryCodeValueError("Category codes must be between zero and 9,999.")
 
         return
 

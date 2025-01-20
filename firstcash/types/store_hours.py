@@ -10,3 +10,6 @@ class StoreHours:
 
     is_today: bool
     """A boolean value reflecting whether the specified weekday is today or not."""
+
+    def __str__(self) -> str:
+        return f"{self.weekday} {self.open_time} to {self.close_time}"

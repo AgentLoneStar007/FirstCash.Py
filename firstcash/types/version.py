@@ -1,3 +1,5 @@
+# (currently unused)
+
 class Version:
     major: int
     minor: int
