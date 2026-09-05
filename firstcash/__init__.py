@@ -16,7 +16,7 @@ __title__: str = "firstcash"
 __author__: str = "AgentLoneStar007"
 __license__: str = "MIT"
 __copyright__: str = "Copyright © 2026-present AgentLoneStar007"
-__version__: str = "1.0"
+__version__: str = "1.0.1"
 
 # Imports from library files, to make everything accessible under the main import of "firstcash"
 
