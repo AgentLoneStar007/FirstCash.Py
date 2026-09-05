@@ -16,3 +16,6 @@ class TodaysStoreHours:
 
     def __str__(self) -> str:
         return f"{self.open_time} to {self.close_time}"
+
+    def __repr__(self) -> str:
+        return str(self)

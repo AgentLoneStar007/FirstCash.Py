@@ -15,3 +15,6 @@ class Category:
 
     def __str__(self) -> str:
         return f"{self.category_name} ({self.category_code})"
+
+    def __repr__(self) -> str:
+        return str(self)

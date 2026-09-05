@@ -1,6 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+firstcash = ["py.typed"]
 
 [project]
 name = "firstcash.py"
@@ -17,9 +20,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -31,9 +31,9 @@ classifiers = [
 license = { file = "LICENSE" }
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.9"  # TODO: Verify this will work in Python 3.9 and above
+requires-python = ">=3.12"
 dependencies = [
-    "requests"
+    "httpx"
 ]
 
 [project.urls]

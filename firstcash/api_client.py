@@ -1,5 +1,5 @@
-# Import(s)
-import requests
+# Imports
+import httpx
 from json import JSONDecodeError
 from ._utils import buildURL
 from ._utils import ValueCheckers as value_checkers
@@ -23,7 +23,19 @@ class APIClient:
 
         # Define class-wide variable(s)
         self._api_key: str = api_key
+        self._httpx_client: httpx.AsyncClient = httpx.AsyncClient(timeout=10)
 
+        return
+
+    def _replaceAPIKeyInError(self, error: str) -> str:
+        return error.replace(
+            # Replace the API key in the error log
+            self._api_key, "<API key>"
+        )
+
+    async def closeAsyncRequestClient(self) -> None:
+        """Closes the internal HTTPX client."""
+        await self._httpx_client.aclose()
         return
 
     async def fetchCategories(self) -> list[Category]:
@@ -38,13 +50,17 @@ class APIClient:
 
         try:
             # Make the API request
-            response: requests.Response = requests.get(
+            response: httpx.Response = await self._httpx_client.get(
                 buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Categories")
             )
             response.raise_for_status()
 
+        # Handle a timeout in the request
+        except httpx.TimeoutException:
+            raise APIResponseTimedOut
+
         # Handle getting rate-limited
-        except requests.exceptions.ConnectionError as error:
+        except httpx.ConnectError as error:
             ## Hacky fix, but it works, and I don't know of a better solution
             if "max retries exceeded with url" in str(error).lower():
                 ## By raising it from None, it prevents a massive stack trace that
@@ -55,16 +71,18 @@ class APIClient:
                 # Handle any other errors
                 raise APIGeneralError(
                     f"Failed to make a query to the API while fetching categories with the following error: {
-                        str(error).replace(
-                            # Replace the API key in the error log
-                            self._api_key, "<API key>"
-                        )}")
+                    self._replaceAPIKeyInError(str(error))
+                }")
 
         # Handle a non-200 response code
-        except requests.exceptions.HTTPError as error:
+        except httpx.HTTPStatusError as error:
             # Handle a forbidden error
             if error.response.status_code == 403:
                 raise APIUnauthorizedError
+
+            # Handle a rate-limit response (too many requests)
+            if error.response.status_code == 429:
+                raise APIRateLimited from None
 
             # Handle an internal server error
             if error.response.status_code == 500:
@@ -73,10 +91,8 @@ class APIClient:
             # Handle any other errors
             raise APIGeneralError(
                 f"Failed to make a query to the API while fetching categories with the following error: {
-                    str(error).replace(
-                        # Replace the API key in the error log
-                        self._api_key, "<API key>"
-                    )}")
+                    self._replaceAPIKeyInError(str(error))
+                }")
 
         # Grab the data out of the response
         data: dict = response.json()
@@ -111,12 +127,16 @@ class APIClient:
 
         try:
             # Make the API request
-            response: requests.Response = requests.get(
+            response: httpx.Response = await self._httpx_client.get(
                 buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Categories/top"))
             response.raise_for_status()
 
+        # Handle a timeout in the request
+        except httpx.TimeoutException:
+            raise APIResponseTimedOut
+
         # Handle getting rate-limited
-        except requests.exceptions.ConnectionError as error:
+        except httpx.ConnectError as error:
             if "max retries exceeded with url" in str(error).lower():
                 raise APIRateLimited from None
 
@@ -124,16 +144,18 @@ class APIClient:
                 # Handle any other errors
                 raise APIGeneralError(
                     f"Failed to make a query to the API while fetching top-level categories with the following error: {
-                        str(error).replace(
-                            # Replace the API key in the error log
-                            self._api_key, "<API key>"
-                        )}")
+                        self._replaceAPIKeyInError(str(error))
+                    }")
 
         # Handle a non-200 response code
-        except requests.exceptions.HTTPError as error:
+        except httpx.HTTPStatusError as error:
             # Handle a forbidden error
             if error.response.status_code == 403:
                 raise APIUnauthorizedError
+
+            # Handle a rate-limit response (too many requests)
+            if error.response.status_code == 429:
+                raise APIRateLimited from None
 
             # Handle an internal server error
             if error.response.status_code == 500:
@@ -142,10 +164,8 @@ class APIClient:
             # Handle any other errors
             raise APIGeneralError(
                 f"Failed to make a query to the API while fetching top-level categories with the following error: {
-                    str(error).replace(
-                        # Replace the API key in the error log
-                        self._api_key, "<API key>"
-                    )}")
+                    self._replaceAPIKeyInError(str(error))
+                }")
 
         # Grab the data out of the response
         data: dict = response.json()
@@ -224,14 +244,17 @@ class APIClient:
         value_checkers.checkLatitude(search_latitude)
         value_checkers.checkLongitude(search_longitude)
 
+        # Check the search radius
+        value_checkers.checkSearchRadius(search_radius)
+
         # Check the page index and size
         value_checkers.checkPageIndex(page_index)
         value_checkers.checkPageSize(page_size)
 
         try:
             # Make the API request
-            response: requests.Response = requests.get(
-                buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Items"), params={
+            response: httpx.Response = await self._httpx_client.get(
+                buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Items", params={
                     "c": category_code,
                     "p": page_index,
                     "s": page_size,
@@ -240,11 +263,15 @@ class APIClient:
                     "r": search_radius,
                     "u": "firstcash-py",
                     "t": search_term if search_term else ""
-                })
+                }))
             response.raise_for_status()
 
+        # Handle a timeout in the request
+        except httpx.TimeoutException:
+            raise APIResponseTimedOut
+
         # Handle getting rate-limited
-        except requests.exceptions.ConnectionError as error:
+        except httpx.ConnectError as error:
             if "max retries exceeded with url" in str(error).lower():
                 raise APIRateLimited from None
 
@@ -252,16 +279,18 @@ class APIClient:
                 # Handle any other errors
                 raise APIGeneralError(
                     f"Failed to make a query to the API while searching for items with the following error: {
-                        str(error).replace(
-                            # Replace the API key in the error log
-                            self._api_key, "<API key>"
-                        )}")
+                        self._replaceAPIKeyInError(str(error))
+                    }")
 
         # Handle a non-200 response code
-        except requests.exceptions.HTTPError as error:
+        except httpx.HTTPStatusError as error:
             # Handle a forbidden error
             if error.response.status_code == 403:
                 raise APIUnauthorizedError
+
+            # Handle a rate-limit response (too many requests)
+            if error.response.status_code == 429:
+                raise APIRateLimited from None
 
             # Handle an internal server error
             if error.response.status_code == 500:
@@ -270,10 +299,8 @@ class APIClient:
             # Handle any other errors
             raise APIGeneralError(
                 f"Failed to make a query to the API while searching for items with the following error: {
-                    str(error).replace(
-                        # Replace the API key in the error log
-                        self._api_key, "<API key>"
-                    )}")
+                    self._replaceAPIKeyInError(str(error))
+                }")
 
         try:
             # Grab the data out of the response
@@ -432,7 +459,7 @@ class APIClient:
                 value_checkers.checkCategoryCode(int(category_code))
 
         try:
-            response: requests.Response = requests.put(
+            response: httpx.Response = await self._httpx_client.put(
                 url=buildURL(
                     base_api_url="https://mobileapps.cashamerica.com/api/v2/",
                     api_key=self._api_key,
@@ -455,8 +482,12 @@ class APIClient:
 
             response.raise_for_status()
 
+        # Handle a timeout in the request
+        except httpx.TimeoutException:
+            raise APIResponseTimedOut
+
         # Handle getting rate-limited
-        except requests.exceptions.ConnectionError as error:
+        except httpx.ConnectError as error:
             if "max retries exceeded with url" in str(error).lower():
                 raise APIRateLimited from None
 
@@ -464,16 +495,18 @@ class APIClient:
                 # Handle any other errors
                 raise APIGeneralError(
                     f"Failed to make a query to the API while searching for items with the following error: {
-                        str(error).replace(
-                            # Replace the API key in the error log
-                            self._api_key, "<API key>"
-                        )}")
+                        self._replaceAPIKeyInError(str(error))
+                    }")
 
         # Handle a non-200 response code
-        except requests.exceptions.HTTPError as error:
+        except httpx.HTTPStatusError as error:
             # Handle a forbidden error
             if error.response.status_code == 403:
                 raise APIUnauthorizedError
+
+            # Handle a rate-limit response (too many requests)
+            if error.response.status_code == 429:
+                raise APIRateLimited from None
 
             # Handle an internal server error
             if error.response.status_code == 500:
@@ -482,10 +515,8 @@ class APIClient:
             # Handle any other errors
             raise APIGeneralError(
                 f"Failed to make a query to the API while searching for items with the following error: {
-                    str(error).replace(
-                        # Replace the API key in the error log
-                        self._api_key, "<API key>"
-                    )}")
+                    self._replaceAPIKeyInError(str(error))
+                }")
 
         try:
             # Grab the data out of the response
@@ -572,17 +603,21 @@ class APIClient:
 
         try:
             # Make the API request
-            response: requests.Response = requests.get(
-                buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Stores"), params={
+            response: httpx.Response = await self._httpx_client.get(
+                buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Stores", params={
                     "p": page_index,
                     "s": page_size,
                     "lat": search_latitude,
                     "lng": search_longitude
-                })
+                }))
             response.raise_for_status()
 
+        # Handle a timeout in the request
+        except httpx.TimeoutException:
+            raise APIResponseTimedOut
+
         # Handle getting rate-limited
-        except requests.exceptions.ConnectionError as error:
+        except httpx.ConnectError as error:
             if "max retries exceeded with url" in str(error).lower():
                 raise APIRateLimited from None
 
@@ -590,16 +625,18 @@ class APIClient:
                 # Handle any other errors
                 raise APIGeneralError(
                     f"Failed to make a query to the API while searching for stores with the following error: {
-                        str(error).replace(
-                            # Replace the API key in the error log
-                            self._api_key, "<API key>"
-                        )}")
+                        self._replaceAPIKeyInError(str(error))
+                    }")
 
         # Handle a non-200 response code
-        except requests.exceptions.HTTPError as error:
+        except httpx.HTTPStatusError as error:
             # Handle a forbidden error
             if error.response.status_code == 403:
                 raise APIUnauthorizedError
+
+            # Handle a rate-limit response (too many requests)
+            if error.response.status_code == 429:
+                raise APIRateLimited from None
 
             # Handle an internal server error
             if error.response.status_code == 500:
@@ -608,10 +645,8 @@ class APIClient:
             # Handle any other errors
             raise APIGeneralError(
                 f"Failed to make a query to the API while searching for stores with the following error: {
-                    str(error).replace(
-                        # Replace the API key in the error log
-                        self._api_key, "<API key>"
-                    )}")
+                    self._replaceAPIKeyInError(str(error))
+                }")
 
         try:
             # Grab the data out of the response
@@ -699,14 +734,18 @@ class APIClient:
 
         try:
             # Make the API request
-            response: requests.Response = requests.get(
-                buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Stores"), params={
+            response: httpx.Response = await self._httpx_client.get(
+                buildURL(base_api_url=self._api_base_url, api_key=self._api_key, endpoint="Stores", params={
                     "id": store_id
-                })
+                }))
             response.raise_for_status()
 
+        # Handle a timeout in the request
+        except httpx.TimeoutException:
+            raise APIResponseTimedOut
+
         # Handle getting rate-limited
-        except requests.exceptions.ConnectionError as error:
+        except httpx.ConnectError as error:
             if "max retries exceeded with url" in str(error).lower():
                 raise APIRateLimited from None
 
@@ -714,16 +753,18 @@ class APIClient:
                 # Handle any other errors
                 raise APIGeneralError(
                     f"Failed to make a query to the API while fetching a store with the following error: {
-                        str(error).replace(
-                            # Replace the API key in the error log
-                            self._api_key, "<API key>"
-                        )}")
+                        self._replaceAPIKeyInError(str(error))
+                    }")
 
         # Handle a non-200 response code
-        except requests.exceptions.HTTPError as error:
+        except httpx.HTTPStatusError as error:
             # Handle a forbidden error
             if error.response.status_code == 403:
                 raise APIUnauthorizedError
+
+            # Handle a rate-limit response (too many requests)
+            if error.response.status_code == 429:
+                raise APIRateLimited from None
 
             # Handle an internal server error
             if error.response.status_code == 500:
@@ -732,10 +773,8 @@ class APIClient:
             # Handle any other errors
             raise APIGeneralError(
                 f"Failed to make a query to the API while fetching a store with the following error: {
-                    str(error).replace(
-                        # Replace the API key in the error log
-                        self._api_key, "<API key>"
-                    )}")
+                    self._replaceAPIKeyInError(str(error))
+                }")
 
         try:
             # Grab the data out of the response
@@ -785,7 +824,7 @@ class APIClient:
             store_license_object.license_type = store_license["licenseType"]
 
             # Append this license to the list of store licenses
-            store_licenses.append(store_license)
+            store_licenses.append(store_license_object)
 
         # Create a store details object
         store_details: StoreDetails = StoreDetails()

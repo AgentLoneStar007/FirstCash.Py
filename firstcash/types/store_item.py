@@ -37,3 +37,6 @@ class StoreItem:
 
     def __str__(self) -> str:
         return f"{self.item_name} {" ".title().join(self.details)} - ${self.price:.2f}"
+
+    def __repr__(self) -> str:
+        return str(self)

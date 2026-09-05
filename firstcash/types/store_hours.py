@@ -13,3 +13,6 @@ class StoreHours:
 
     def __str__(self) -> str:
         return f"{self.weekday} {self.open_time} to {self.close_time}"
+
+    def __repr__(self) -> str:
+        return str(self)

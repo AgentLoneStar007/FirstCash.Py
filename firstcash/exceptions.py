@@ -37,6 +37,12 @@ class APIUnauthorizedError(FirstCashException):
         return
 
 
+class APIResponseTimedOut(FirstCashException):
+    """Error raised when a request made to the API times out."""
+
+    pass
+
+
 class APIContentNotFound(FirstCashException):
     """Error raised when the requested data could not be found, or no matches were found for the query."""
 

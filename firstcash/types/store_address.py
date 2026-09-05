@@ -17,3 +17,6 @@ class StoreAddress:
     def __str__(self) -> str:
         return f"{
             self.address1}{" " + self.address2 if self.address2 else ""} {self.city}, {self.state} {self.zip_code}"
+
+    def __repr__(self) -> str:
+        return str(self)

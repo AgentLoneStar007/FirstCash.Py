@@ -16,39 +16,57 @@ so you have to attain one on your own.
 - Asynchronous functionality
 
 ## Installation:
-**This library requires at least Python 3.9 or higher.** <br>
+**This library requires at least Python 3.12 or higher.** <br>
+
+### Pip:
+
+---
+Windows:
+```commandline
+py -3 -m pip install -U firstcash.py
+```
 
 Linux/macOS/Unix:
-```commandline
+```bash
 python3 -m pip install -U firstcash.py
 ```
 
-Windows:
-```commandline
-py -m -3 pip install -U firstcash.py
+### UV:
+
+---
+Windows/macOS/Linux/Unix:
+```bash
+uv add firstcash.py
 ```
 
 ## Usage:
 ```python
-import firstcash
+from firstcash import APIClient, StoreItemResponse
 from asyncio import run
 
-firstcash_client: firstcash.APIClient = APIClient(api_key="<api key>")
+firstcash_client: APIClient = APIClient(api_key="<api key>")
 
 async def main():
-    response: firstcash.StoreItemResponse = await firstcash_client.searchItemsByGeoLocation(
-        category_code=0,  # Zero for all categories
-        search_latitude=39.105,
-        search_longitude=-94.593,
-        search_radius=20  # In miles
-    )
-    
-    for item in response.results:
-        print(item)
+    try:
+        response: StoreItemResponse = await firstcash_client.searchItemsByGeoLocation(
+            category_code=0,  # Zero for all categories
+            search_latitude=39.105,
+            search_longitude=-94.593,
+            search_radius=20  # In miles
+        )
+        
+        for item in response.results:
+            print(item)
+    finally:
+        await firstcash_client.closeAsyncRequestClient()
 
 run(main())
 ```
 
 (More examples provided in the [documentation](https://github.com/AgentLoneStar007/FirstCash.Py/tree/main/docs).)
 
-
+## TODO:
+- [ ] Add a test suite
+- [ ] Add some documentation and examples
+- [ ] Add more extensive error handling
+- [ ] Add a cache to store recently queried items and store details (possibly)

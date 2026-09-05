@@ -18,6 +18,6 @@ python -m build || return
 
 # Install it from the distribution directory
 echo --- Installing latest version...
-pip install dist/*.whl
+pip install dist/*.whl --force-reinstall
 
 echo --- Done!

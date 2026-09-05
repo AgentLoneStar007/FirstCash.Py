@@ -34,3 +34,6 @@ class StoreDisplayInfo:
         # When this object is printed as a string, it will be in the format of
         # (store brand) (store number), such as "National Pawn 4412"
         return f"{self.brand} {self.store_number}"
+
+    def __repr__(self) -> str:
+        return str(self)

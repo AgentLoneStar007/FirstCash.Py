@@ -27,3 +27,6 @@ class StoreDetails:
 
     def __str__(self) -> str:
         return self.short_name.upper()
+
+    def __repr__(self) -> str:
+        return str(self)
