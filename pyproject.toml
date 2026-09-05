@@ -15,7 +15,6 @@ keywords = ["api", "web", "web api", "http", "https", "http api", "https api", "
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
@@ -28,7 +27,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Typing :: Typed"
 ]
-license = { file = "LICENSE" }
+license = "MIT"
 dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.12"
