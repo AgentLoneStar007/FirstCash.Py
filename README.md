@@ -7,8 +7,8 @@ allows the developer to search for stores, items, and more. One major advantage 
 library is it exposes API methods that aren't in use on the FirstCash [inventory website](https://search.cashamerica.com/),
 such as limiting your search to specific stores or multiple categories.
 
-Note: This library does require an API key. While this is easy to obtain, I doubt they're legal to distribute,
-so you have to attain one on your own.
+Note: This library does require an API key. While one is very is easy to obtain if you just look
+a little for it, I doubt they're legal to distribute, so you have to attain one on your own.
 
 #### Features:
 - Methods/attributes extensively explained within
@@ -64,6 +64,25 @@ run(main())
 ```
 
 (More examples provided in the [documentation](https://github.com/AgentLoneStar007/FirstCash.Py/tree/main/docs).)
+
+## Contributing:
+To build this library, a normal virtual environment is required (A.K.A. not UV).
+First, install the build requirements:
+```bash
+python -m pip install -r requirements.txt
+```
+Then run the build script for either Linux or Windows:
+```bash
+# Linux
+./scripts/build_and_install.sh
+
+# Windows
+scripts/build_and_install.bat
+```
+This will uninstall any existing versions of the library, build the newest version, and install it
+into the environment.
+
+I'll add more to this in the future!
 
 ## TODO:
 - [ ] Add a test suite
