@@ -1,6 +1,5 @@
 # Disclaimer
 
----
 This API was not meant to be public. I found documentation for it purely by accident when trying to understand why I
 couldn't click on the "Store Details" button on an item on their website. I built this library for two reasons:
 1) For a learning exercise. (I've never built a Python library.)
@@ -19,7 +18,6 @@ comply. If this library randomly goes missing one day, that's why. This is their
 
 # FirstCash System Notes
 
----
 FirstCash uses a system called V2 for their pawn management, point-of-sale system, and other services. This system
 (from what I can tell) is in no way related to this API. Either V2 manages the inventory and this API pull from it,
 or the inventory is kept in a separate database and they both pull from it. Regardless, this API does have some minor
@@ -32,7 +30,6 @@ documentation here or elsewhere. This API is not meant to have public access.
 
 # Query and Data Storage Notes
 
----
 FirstCash's inventory is added to and edited by employees. Not everyone understands the importance of consistent data
 entry, and FirstCash does not have the need to enforce consistency. In other words, sometimes you'll find a product
 with a serial number in place of the model number, or a manufacturer of "computer," or some other thing like that. The
