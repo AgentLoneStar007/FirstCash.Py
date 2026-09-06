@@ -86,6 +86,6 @@ I'll add more to this in the future!
 
 ## TODO:
 - [ ] Add a test suite
-- [ ] Add some documentation and examples
+- [x] Add some documentation and examples
 - [ ] Add more extensive error handling
-- [ ] Add a cache to store recently queried items and store details (possibly)
+- [ ] Add a cache to store recently queried items and store details internally
