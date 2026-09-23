@@ -5,6 +5,9 @@ FirstCash.py is an asynchronous Python wrapper around part of the
 It can fetch inventory categories, search inventory, find nearby stores, and
 retrieve a store's details.
 
+**Note:** this documentation was written by an AI. I reviewed it and fixed every
+discrepancy or issue I came across, but I still thought I'd make note of it.
+
 ## Contents
 
 - [Disclaimer](disclaimer.md) - **IMPORTANT!** Read this first before continuing!
