@@ -375,7 +375,7 @@ class APIClient:
          location to search from. Cannot be negative or
          greater than 5,000.
         :param search_price_high: The maximum price value for
-         your query.
+         your query Cannot be greater than $999,999.
         :param search_price_low: The minimum price value for
          your query. Optional. Cannot be negative.
         :param stores: A list of store IDs in string format

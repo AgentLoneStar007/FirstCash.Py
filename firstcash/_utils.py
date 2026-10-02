@@ -76,6 +76,9 @@ class ValueCheckers:
         if max_price < 0:
             raise PriceValueError("Price filters cannot be negative.")
 
+        if max_price >= 1000000:
+            raise PriceValueError("The maximum price cannot be greater than $999,999.")
+
         if min_price:
             if min_price < 0:
                 raise PriceValueError("Price filters cannot be negative.")
