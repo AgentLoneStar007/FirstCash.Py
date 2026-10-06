@@ -25,6 +25,11 @@ class StoreDetails:
     short_name: str
     """The store's name. This will usually be something like \"fcp(store number).\""""
 
+    @property
+    def is_closed_today(self) -> bool:
+        """If the store is normally closed on this day."""
+        return True if next((hours for hours in self.weekly_hours if hours.is_today)).open_time.lower() == "closed" else False
+
     def __str__(self) -> str:
         return self.short_name.upper()
 

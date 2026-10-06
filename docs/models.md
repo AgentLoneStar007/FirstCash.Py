@@ -90,15 +90,16 @@ Returned by `searchStoresByGeoLocation()`.
 
 Returned by `fetchStore()`.
 
-| Field          | Type                 | Description                               |
-|----------------|----------------------|-------------------------------------------|
-| `phone`        | `str`                | Store phone number.                       |
-| `address`      | `StoreAddress`       | Store postal address.                     |
-| `services`     | `list[str]`          | Services such as loans or gold purchases. |
-| `weekly_hours` | `list[StoreHours]`   | Opening hours for each weekday.           |
-| `licenses`     | `list[StoreLicense]` | Store licenses; often empty.              |
-| `store_number` | `str`                | Store number/ID.                          |
-| `short_name`   | `str`                | Short store name.                         |
+| Field             | Type                 | Description                                     |
+|-------------------|----------------------|-------------------------------------------------|
+| `phone`           | `str`                | Store phone number.                             |
+| `address`         | `StoreAddress`       | Store postal address.                           |
+| `services`        | `list[str]`          | Services such as loans or gold purchases.       |
+| `weekly_hours`    | `list[StoreHours]`   | Opening hours for each weekday.                 |
+| `licenses`        | `list[StoreLicense]` | Store licenses; often empty.                    |
+| `store_number`    | `str`                | Store number/ID.                                |
+| `short_name`      | `str`                | Short store name.                               |
+| `is_closed_today` | `bool`               | Whether the store is closed on the current day. |
 
 `str(store)` and `repr(store)` return the uppercased short name.
 
